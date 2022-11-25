@@ -3,21 +3,35 @@ import psycopg
 
 class Database:
     def __init__(self, dbname, user, host, password):
-        self.conn = psycopg.connect(f"dbname={dbname} user={user} host={host} password={password}")
+
+            self.conn = psycopg.connect(f"dbname={dbname} user={user} host={host} password={password}")
+
+    def put_subscriptions(self, user_id, subscriptions):
+        with self.conn.cursor() as cur:
+            user_exists = cur.execute(f"""
+            SELECT 1 FROM subscriptions
+            WHERE user_id = {user_id};""").fetchone()
+            str_ids = ', '.join(list(map(str, subscriptions.keys())))
+            if user_exists != None:
+                cur.execute(f"""
+                UPDATE subscriptions SET
+                list_subs = array_cat((SELECT list_subs FROM subscriptions WHERE user_id = {user_id}), '{{ {str_ids} }}');
+                """)
+            else:
+                cur.execute(f"""
+                INSERT INTO subscriptions VALUES
+                ({user_id}, '{{ {{ {str_ids} }} }}');
+                """)
+        self.conn.commit()
+
     
-    def get_dynamic_subscribers(self, login, period):
-        time_period = datetime.datetime.now().date() - datetime.timedelta(days=period)
+    def get_dynamic_subscribers(self, user_id, period):
         with self.conn.cursor() as cur:
             subscriptions = cur.execute(f"""
-            SELECT action, subscription, timestamp FROM subscriptions
-            WHERE login = '{login}' AND timestamp >= '{time_period}';
-            """).fetchall()
+            SELECT list_subs[array_upper(list_subs, 1)-{period}:array_upper(list_subs, 1)] FROM subscriptions
+            WHERE user_id = {user_id};
+            """).fetchone()
+            return subscriptions
 
-            subscribers = cur.execute(f"""
-            SELECT action, subscriber, timestamp FROM subscribers
-            WHERE login = '{login}' AND timestamp >= '{time_period}';
-            """).fetchall()
-            return subscriptions, subscribers
-    
     def close_connection(self):
         self.conn.close()
