@@ -6,7 +6,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from account import Account
 
-API_TOKEN = '5759310189:AAFKK2t5a5wMzSIO_saqWj-61J143DmFTnw'
+API_TOKEN = ''
 logging.basicConfig(level=logging.INFO)
 
 storage = MemoryStorage()
