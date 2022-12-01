@@ -13,20 +13,27 @@ class Account:
                 raise Exception("Please make sure of correctness your login or password or verification_code")
 
     def RemoveSubsNotFollowingYou(self):
-        needToUnfollow = set(self.ShowFollowers().keys()) - set(self.ShowSubscribers().keys())
-        for userId in needToUnfollow:
-            self.cl.user_unfollow(userId)
+        try:
+            needToUnfollow = set(self.ShowFollowers().keys()) - set(self.ShowSubscribers().keys())
+            for userId in needToUnfollow:
+                self.cl.user_unfollow(userId)
+            return True
+        except:
+            return False
 
     def FollowOnSubs(self):
-        needToFollow = set(self.ShowSubscribers().keys()) - set(self.ShowFollowers().keys())
-        for userId in needToFollow:
-            self.cl.user_follow(userId)
-
+        try:
+            needToFollow = set(self.ShowSubscribers().keys()) - set(self.ShowFollowers().keys())
+            for userId in needToFollow:
+                self.cl.user_follow(userId)
+            return True
+        except:
+            return False
     # who follows you
-    def ShowSubscribers(self):
+    def ShowFollowers(self):
         return self.cl.user_followers(str(self.cl.user_id))
 
     # you follow
-    def ShowFollowers(self):
+    def ShowSubscriptions(self):
         return self.cl.user_following(str(self.cl.user_id))
 
