@@ -2,7 +2,7 @@ import datetime
 import psycopg
 
 class Database:
-    def __init__(self, dbname, user, host, password):
+    def __init__(self, dbname=, user, host, password):
 
             self.conn = psycopg.connect(f"dbname={dbname} user={user} host={host} password={password}")
 
@@ -11,8 +11,10 @@ class Database:
             user_exists = cur.execute(f"""
             SELECT 1 FROM subscriptions
             WHERE user_id = {user_id};""").fetchone()
-            str_ids = ', '.join(list(map(str, subscriptions.keys())))
+            # str_ids = ', '.join(list(map(str, subscriptions.keys())))
+            str_ids = ', '.join(subscriptions)
             if user_exists != None:
+
                 cur.execute(f"""
                 UPDATE subscriptions SET
                 list_subs = array_cat((SELECT list_subs FROM subscriptions WHERE user_id = {user_id}), '{{ {str_ids} }}');
