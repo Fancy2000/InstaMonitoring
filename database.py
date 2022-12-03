@@ -2,7 +2,7 @@ import datetime
 import psycopg
 
 class Database:
-    def __init__(self, dbname=, user, host, password):
+    def __init__(self, dbname, user, host, password):
 
             self.conn = psycopg.connect(f"dbname={dbname} user={user} host={host} password={password}")
 

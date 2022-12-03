@@ -144,7 +144,6 @@ async def callback_inline(call):
         db.get_dynamic_subscribers(acc.GetUserId(), int(call.text))
 
 
-
 if __name__ == '__main__':
     db = Database("insta", "postgres", "localhost", "postgres")
     executor.start_polling(dp, skip_updates=True)
