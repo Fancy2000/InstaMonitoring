@@ -61,8 +61,9 @@ async def process_login_and_password(message: types.Message, state: FSMContext):
         return
     try:
         acc = Account(login, password, authCode) ### auth in instagram
+        acc.update_every_day()
         await message.answer("Успешная аутентификация")
-        acc.GetUserId()
+        # acc.GetUserId()
         users[message.from_user.id] = acc
     except:
         await message.answer("Не удалось авторизоваться. Попробуйте снова")
@@ -89,7 +90,7 @@ async def open_magazines(msg: types.Message):
         "Show Subscribers": "show_subscribers",
         "Show Followers": "show_followers",
         "Show Stories Info": "show_stories_info",
-        # 'Get Period Subscribtions': "get_period_subscribtions", ### TODO add timestamp to db
+        'Get Period Subscribtions': "get_period_subscribtions", ### TODO add timestamp to db
     }
     markup = types.InlineKeyboardMarkup()
     for name, data in magazines.items():
@@ -154,8 +155,11 @@ async def callback_inline(call):
             await dp.bot.send_photo(chat_id=call.message.chat.id, photo=photo)
             await dp.bot.send_message(chat_id=call.message.chat.id, text="\n".join(list(users_)))
 
-    # elif call.data == "get_period_subscribtions":
-    #     subs, timestamp = db.get_dynamic_subscribers(acc.GetUserId())
+
+    elif call.data == "get_period_subscribtions":
+        subs = acc.get_dynamic(2)
+        print(type(subs))
+        subs = subs[0]
     #     len_subs = []
     #     for i in range(len(subs)):
     #         len_subs.append(len(subs[i]))
@@ -170,7 +174,7 @@ async def callback_inline(call):
 
 
 if __name__ == '__main__':
-    db = Database("insta", "postgres", "localhost", "password")
+    # db = Database("insta", "postgres", "localhost", "password")
     executor.start_polling(dp, skip_updates=True)
 
 

@@ -1,5 +1,24 @@
 from instagrapi import Client
+from database import Database
+from time import sleep, time
+from functools import wraps
 
+# DAY = 60 * 60 * 24
+DAY = 30
+
+def mult_threading(func):
+        @wraps(func)
+        def wrapper(*args_, **kwargs_):
+            import threading
+            print("INIT")
+            func_thread = threading.Thread(target=func,
+                                            args=tuple(args_),
+                                            kwargs=kwargs_)
+            print("Thread create")
+            func_thread.start()
+            print("Thread start")
+            return func_thread
+        return wrapper
 
 class Account:
     def __init__(self, login, password, verifyCode=''):
@@ -13,6 +32,7 @@ class Account:
                 print("success auth")
             except:
                 raise Exception("Please make sure of correctness your login or password or verification_code")
+        self.db = Database("insta", "postgres", "localhost", "password")
 
     def RemoveSubsNotFollowingYou(self):
         try:
@@ -89,6 +109,16 @@ class Account:
         print(ans)
         print(stories)
         return ans
+
+    @mult_threading
+    def update_every_day(self):
+        while True:
+            print("KEK")
+            self.db.put_subscriptions(self.cl.user_id, self.ShowFollowers())
+            sleep(DAY)
+
+    def get_dynamic(self, period):
+        return self.db.get_dynamic_subscribers(self.cl.user_id, period)
 
 
 
