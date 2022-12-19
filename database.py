@@ -11,7 +11,6 @@ class Database:
             user_exists = cur.execute(f"""
             SELECT 1 FROM subscriptions
             WHERE user_id = {user_id};""").fetchone()
-            # str_ids = ', '.join(list(map(str, subscriptions.keys())))
             str_ids = ', '.join(subscriptions)
             if user_exists != None:
 

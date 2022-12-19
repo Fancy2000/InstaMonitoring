@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import schedule
 import time
 
 from aiogram import Bot, Dispatcher, executor, types
@@ -136,11 +135,9 @@ async def callback_inline(call):
         ans = []
         for i, elem in enumerate(res.values()):
             ans.append(elem.username)
-        db.get_dynamic_subscribers(acc.GetUserId(), int(call.text))
 
 
 if __name__ == '__main__':
-    db = Database("insta", "postgres", "localhost", "postgres")
     executor.start_polling(dp, skip_updates=True)
 
 
