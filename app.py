@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import requests
 import schedule
 import time
 import matplotlib.pyplot as plt
@@ -11,7 +12,9 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import FSInputFile
+# from aiogram.types import FSInputFile
+from aiogram.types import InputFile
+#
 from account import Account
 from database import Database
 
@@ -105,13 +108,13 @@ async def callback_inline(call):
     if call.data == 'remove_subs':
         res = acc.RemoveSubsNotFollowingYou()
         if res:
-            await dp.bot.send_message(chat_id=call.message.chat.id, text="Success!")
+            await dp.bot.send_message(chat_id=call.message.chat.id, text="\n".join(list(res)))
         else:
             await dp.bot.send_message(chat_id=call.message.chat.id, text="Failed!")
     elif call.data == 'follow_on_subs':
         res = acc.FollowOnSubs()
         if res:
-            await dp.bot.send_message(chat_id=call.message.chat.id, text="Success!")
+            await dp.bot.send_message(chat_id=call.message.chat.id, text="\n".join(list(res)))
         else:
             await dp.bot.send_message(chat_id=call.message.chat.id, text="Failed!")
     elif call.data == 'show_subscribers':
@@ -137,29 +140,37 @@ async def callback_inline(call):
     elif call.data == "show_stories_info":
         res = acc.ShowStoriesInfo()
         ans = []
-        for i, elem in enumerate(res.values()):
-            ans.append(str(len(res) - i) + ") " + elem.username)
-        if res:
-            await dp.bot.send_message(chat_id=call.message.chat.id, text="\n".join(ans))
-        else:
-            await dp.bot.send_message(chat_id=call.message.chat.id, text="Failed!")
-    elif call.data == "get_period_subscribtions":
-        subs, timestamp = db.get_dynamic_subscribers(acc.GetUserId())
-        len_subs = []
-        for i in range(len(subs)):
-            len_subs.append(len(subs[i]))
-        if not os.path.exists("images"):
-            os.mkdir("images") ### creating directory to storage plots
-        plt.clf()
-        plt.plot(timestamp, len_subs)
-        filename = "".join(random.choice(string.hexdigits) for i in range(16)) ### generating random filename with length 16
-        plt.savefig("images/{}.png".format(filename)) ### saving plot to "images" dir
-        plot = FSInputFile("images/{}.png".format(filename)) ### getting file to send it to chat
-        dp.bot.send_photo(chat_id=call.message.chat.id, photo=plot) ### sending file
+
+        for elem in res:
+            url_http = elem[0] # URL on post
+            users_ = elem[1] # set of username
+            img_data = requests.get(url_http).content
+            filename = "".join(random.choice(string.hexdigits) for i in range(16))
+            if not os.path.exists("stories"):
+                os.mkdir("stories") ### creating directory to storage plots
+            with open("stories/{}.png".format(filename), 'wb') as handler:
+                handler.write(img_data)
+            photo = open("stories/{}.png".format(filename), "rb")
+            await dp.bot.send_photo(chat_id=call.message.chat.id, photo=photo)
+            await dp.bot.send_message(chat_id=call.message.chat.id, text="\n".join(list(users_)))
+
+    # elif call.data == "get_period_subscribtions":
+    #     subs, timestamp = db.get_dynamic_subscribers(acc.GetUserId())
+    #     len_subs = []
+    #     for i in range(len(subs)):
+    #         len_subs.append(len(subs[i]))
+    #     if not os.path.exists("plots"):
+    #         os.mkdir("plots") ### creating directory to storage plots
+    #     plt.clf()
+    #     plt.plot(timestamp, len_subs)
+    #     filename = "".join(random.choice(string.hexdigits) for i in range(16)) ### generating random filename with length 16
+    #     plt.savefig("plots/{}.png".format(filename)) ### saving plot to "images" dir
+    #     plot = FSInputFile("plots/{}.png".format(filename)) ### getting file to send it to chat
+    #     dp.bot.send_photo(chat_id=call.message.chat.id, photo=plot) ### sending file
 
 
 if __name__ == '__main__':
-    db = Database("insta", "postgres", "localhost", "postgres")
+    db = Database("insta", "postgres", "localhost", "password")
     executor.start_polling(dp, skip_updates=True)
 
 
