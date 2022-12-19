@@ -1,6 +1,4 @@
-import schedule
 from instagrapi import Client
-
 
 
 class Account:
@@ -8,7 +6,6 @@ class Account:
         self.cl = Client()
         try:
             self.cl.login(login, password, verification_code=verifyCode)
-            schedule.run_pending()
             print("success auth")
         except:
             try:
@@ -19,14 +16,7 @@ class Account:
 
     def RemoveSubsNotFollowingYou(self):
         try:
-
-            print("remove subs")
-            print("your followers: ", self.ShowSubscriptions().keys())
-            print("your followers: ", self.ShowSubscriptions().values())
-            print("your followings: ", self.ShowFollowers().keys())
-            print("your followings: ", self.ShowFollowers().values())
             needToUnfollow = set(self.ShowSubscriptions().keys()) - set(self.ShowFollowers().keys())
-            print(needToUnfollow)
             for userId in needToUnfollow:
                 self.cl.user_unfollow(userId)
             return True
@@ -56,4 +46,15 @@ class Account:
     def ShowSubscriptions(self):
         self.cl._users_following.clear()
         return self.cl.user_following(str(self.cl.user_id))
+
+    def ShowUsersWhoNotFollowYouSawStory(self, story_pk):
+        users = set(self.cl.story_viewers(story_pk).keys()) - set(self.ShowFollowers().keys())
+        print(users)
+        return users
+
+    def ShowStoriesInfo(self):
+        stories = self.cl.user_stories(self.cl.user_id)
+        print(stories)
+        return stories
+
 

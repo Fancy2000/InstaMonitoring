@@ -97,21 +97,18 @@ async def callback_inline(call):
         await dp.bot.send_message(chat_id=call.message.chat.id, text="Вы не авторизованы(")
         return
     if call.data == 'remove_subs':
-        print("LOL")
         res = acc.RemoveSubsNotFollowingYou()
         if res:
             await dp.bot.send_message(chat_id=call.message.chat.id, text="Success!")
         else:
             await dp.bot.send_message(chat_id=call.message.chat.id, text="Failed!")
     elif call.data == 'follow_on_subs':
-        print("KEK")
         res = acc.FollowOnSubs()
         if res:
             await dp.bot.send_message(chat_id=call.message.chat.id, text="Success!")
         else:
             await dp.bot.send_message(chat_id=call.message.chat.id, text="Failed!")
     elif call.data == 'show_subscribers':
-        print("chebuREK")
         res = acc.ShowSubscriptions()
         ans = []
         for i, elem in enumerate(res.values()):
@@ -121,7 +118,6 @@ async def callback_inline(call):
         else:
             await dp.bot.send_message(chat_id=call.message.chat.id, text="Failed!")
     elif call.data == 'show_followers':
-        print("Polniy Cheburek")
         res = acc.ShowFollowers()
         print(type(res))
         print(res)
@@ -136,7 +132,6 @@ async def callback_inline(call):
         await Form.get_period.set()
         await call.answer("Введите число дней:")
         ### call - returned message
-        print("Period Kek")
         res = acc.ShowFollowers()
         ans = []
         for i, elem in enumerate(res.values()):
