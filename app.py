@@ -80,6 +80,7 @@ async def open_magazines(msg: types.Message):
         "Follow on Subs": "follow_on_subs",
         "Show Subscribers": "show_subscribers",
         "Show Followers": "show_followers",
+        "Show Stories Info": "show_stories_info",
         # 'Get Period Subscribtions': "get_period_subscribtions", ### TODO update for custom input number
     }
     markup = types.InlineKeyboardMarkup()
@@ -121,6 +122,15 @@ async def callback_inline(call):
         res = acc.ShowFollowers()
         print(type(res))
         print(res)
+        ans = []
+        for i, elem in enumerate(res.values()):
+            ans.append(str(len(res) - i) + ") " + elem.username)
+        if res:
+            await dp.bot.send_message(chat_id=call.message.chat.id, text="\n".join(ans))
+        else:
+            await dp.bot.send_message(chat_id=call.message.chat.id, text="Failed!")
+    elif call.data == "show_stories_info":
+        res = acc.ShowStoriesInfo()
         ans = []
         for i, elem in enumerate(res.values()):
             ans.append(str(len(res) - i) + ") " + elem.username)
