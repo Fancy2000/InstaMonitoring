@@ -27,7 +27,7 @@ class Database:
         self.conn.commit()
 
     
-    def get_dynamic_subscribers(self, user_id, period):
+    def get_dynamic_subscribers(self, user_id, period): ### TODO
         with self.conn.cursor() as cur:
             subscriptions = cur.execute(f"""
             SELECT list_subs[array_upper(list_subs, 1)-{period}:array_upper(list_subs, 1)] FROM subscriptions

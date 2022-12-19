@@ -2,11 +2,16 @@ import asyncio
 import logging
 import schedule
 import time
+import matplotlib.pyplot as plt
+import os
+import string
+import random
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import FSInputFile
 from account import Account
 from database import Database
 
@@ -81,7 +86,7 @@ async def open_magazines(msg: types.Message):
         "Show Subscribers": "show_subscribers",
         "Show Followers": "show_followers",
         "Show Stories Info": "show_stories_info",
-        # 'Get Period Subscribtions': "get_period_subscribtions", ### TODO update for custom input number
+        # 'Get Period Subscribtions': "get_period_subscribtions", ### TODO add timestamp to db
     }
     markup = types.InlineKeyboardMarkup()
     for name, data in magazines.items():
@@ -139,14 +144,18 @@ async def callback_inline(call):
         else:
             await dp.bot.send_message(chat_id=call.message.chat.id, text="Failed!")
     elif call.data == "get_period_subscribtions":
-        await Form.get_period.set()
-        await call.answer("Введите число дней:")
-        ### call - returned message
-        res = acc.ShowFollowers()
-        ans = []
-        for i, elem in enumerate(res.values()):
-            ans.append(elem.username)
-        db.get_dynamic_subscribers(acc.GetUserId(), int(call.text))
+        subs, timestamp = db.get_dynamic_subscribers(acc.GetUserId())
+        len_subs = []
+        for i in range(len(subs)):
+            len_subs.append(len(subs[i]))
+        if not os.path.exists("images"):
+            os.mkdir("images") ### creating directory to storage plots
+        plt.clf()
+        plt.plot(timestamp, len_subs)
+        filename = "".join(random.choice(string.hexdigits) for i in range(16)) ### generating random filename with length 16
+        plt.savefig("images/{}.png".format(filename)) ### saving plot to "images" dir
+        plot = FSInputFile("images/{}.png".format(filename)) ### getting file to send it to chat
+        dp.bot.send_photo(chat_id=call.message.chat.id, photo=plot) ### sending file
 
 
 if __name__ == '__main__':
