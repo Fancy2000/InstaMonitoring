@@ -18,7 +18,7 @@ from aiogram.types import InputFile
 from account import Account
 from database import Database
 
-API_TOKEN = '5759310189:AAFKK2t5a5wMzSIO_saqWj-61J143DmFTnw'
+API_TOKEN = '' #YOUR TOKEN BOT
 logging.basicConfig(level=logging.INFO)
 
 storage = MemoryStorage()

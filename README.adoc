@@ -1,0 +1,18 @@
+== START
+
+=== Выполнять по порядку:
+
+
+* Для начала разверните POSTGRES в докере:
+
+1)`docker pull postgres:latest`
+
+2) `docker run --name postgres-0 -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres:latest`
+
+3) `docker exec -it postgres-0 psql -U postgres`
+
+Войдя внутрь создайте таблицу `create database insta;
+create table subscriptions (user_id INT PRIMARY KEY, list_subs text[][]);`
+
+
+* БД поднята, теперь запустим бота `python3 app.py`:
